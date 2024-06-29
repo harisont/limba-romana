@@ -1,9 +1,9 @@
 concrete MicroLangRom of MicroLang = open MicroResRom, Prelude in {
-  -- source: Laurentia Jinga, "Grammatica romena per italiani" 
+  -- fonte: Laurentia Jinga, "Grammatica romena per italiani" 
   
   lincat
     Det = {s: Gender => Case => Str ; n: Number} ;
-    N = {s: Number => Definiteness => Case => Str ; g: Gender} ;
+    N = Noun ;
 
   lin 
     a_Det = {
