@@ -10,37 +10,37 @@ resource MicroResRom = open Prelude in {
   oper
     Noun : Type = {s: Number => Case => Definiteness => Str ; g: Gender} ;
     
-    mkNoun : Str -> Str -> Str -> Str -> Gender -> Noun =
-      \nas, nap, gds, gdp, g -> {
+    mkNoun : Str -> Str -> Str -> Gender -> Noun =
+      \na, gd, pl, g -> {
         s = table {
           S => table {
             NA => table {
-              I => nas ;
-              D => ad nas S g NA
+              I => na ;
+              D => ad na S g NA
             } ;
             GD => table {
-              I => gds ;
-              D => ad gds S g GD
+              I => gd ;
+              D => ad gd S g GD
             }
           } ;
           P => table {
             NA => table {
-              I => nap ;
-              D => ad nap P g NA
+              I => pl ;
+              D => ad pl P g NA
             } ;
             GD => table {
-              I => gdp ;
-              D => ad gdp P g GD
+              I => pl ;
+              D => ad pl P g GD
             }
           }
         } ;
         g = g
       } ;
 
-    --smartNoun : Str -> Str -> Noun = \nas, nap -> case <nas, nap> of {
-    --  -- ...
-    --  <z + i,_> => mkFeminineNoun ;
-    --} ;
+    smartNoun : Str -> Str -> Noun = \na, p -> case <na, p> of {
+      -- ...
+      <z + i,_> => mkFeminineNoun ;
+    } ;
 
     -- da singolare NA a plurale NA
     -- NB: ignora le alternanze fonetiche di cui al par. 7.2.2
