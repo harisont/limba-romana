@@ -120,10 +120,8 @@ fun
   horse_N : N ;
   hot_A : A ;
   house_N : N ;
---  john_PN : PN ;
   jump_V : V ;
   kill_V2 : V2 ;
---  know_VS : VS ;
   language_N : N ;
   live_V : V ;
   love_V2 : V2 ;
@@ -133,7 +131,6 @@ fun
   new_A : A ;
   now_Adv : Adv ;
   old_A : A ;
---  paris_PN : PN ;
   play_V : V ;
   read_V2 : V2 ;
   ready_A : A ;

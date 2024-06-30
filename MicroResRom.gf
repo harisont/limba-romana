@@ -10,67 +10,82 @@ resource MicroResRom = open Prelude in {
   oper
     Noun : Type = {s: Number => Case => Definiteness => Str ; g: Gender} ;
     
-    mkNoun : Str -> Str -> Str -> Gender -> Noun =
-      \na, gd, pl, g -> {
-        s = table {
-          S => table {
-            NA => table {
-              I => na ;
-              D => ad na S g NA
-            } ;
-            GD => table {
-              I => gd ;
-              D => ad gd S g GD
-            }
+    mkNoun : Str -> Str -> Str -> Gender -> Noun = \na, gd, pl, g -> {
+      s = table {
+        S => table {
+          NA => table {
+            I => na ;
+            D => ad na S g NA
           } ;
-          P => table {
-            NA => table {
-              I => pl ;
-              D => ad pl P g NA
-            } ;
-            GD => table {
-              I => pl ;
-              D => ad pl P g GD
-            }
+          GD => table {
+            I => gd ;
+            D => ad gd S g GD
           }
         } ;
-        g = g
+        P => table {
+          NA => table {
+            I => pl ;
+            D => ad pl P g NA
+          } ;
+          GD => table {
+            I => pl ;
+            D => ad pl P g GD
+          }
+        }
       } ;
+      g = g
+    } ;
 
-    smartNoun : Str -> Str -> Noun = \na, p -> case <na, p> of {
-      -- ...
-      <z + i,_> => mkFeminineNoun ;
+    smartNoun : Str -> Str -> Noun = \s,p -> let g = gend s p in case g of {
+      M | N => mkNoun s s p g ;
+      F => mkNoun s p p g
+    } ;
+
+    -- indovina genere da sing NA + plur (cf. pag. 42-44)
+    gend : Str -> Str -> Gender = \s, p -> case <s, p> of {
+      <_ + ("ău" | "âu"), _ + "e"> => N ;
+      <_ + "ă", _ + ("e" | "i"  | "uri")> => F ;
+      <_ + "ee", _ + "i"> => F ;
+      <_ + "oaie", _ + "oaie"> => F ;
+      <_ + "oare", _ + ("oare" | "ori")> => F ;
+      <_ + "a", _ + "ei"> => F ;
+      <_ + "e", _ + "uri"> => F ;
+      <_ + ("a" | "ea" | "i"), _ + "le"> => F ;
+      <_ + "ie", _ + ("i" | "ii")> => F ;
+      <_ + ("u" | "e"), _ + "i"> => M ;
+      <_ + "ai", _ + "e"> => N ;
+      <_ + ("ău" | "âu"), _ + "e"> => N ;
+      <_ + "ei", _ + "eie"> => N ;
+      <_ + ("iu" | "âi"), _ + "ie"> => N ;
+      <_ + "oi", _ + "oaie"> => N ;
+      <_ + "ui", _ + "ie"> => N ;
+      <_ + ("i" | "e"), _ + "e"> => N ;
+      <_, _ + "i"> => M ; 
+      <_, _ + "e"> => N ;
+      <_,_> => N -- arbitrario
     } ;
 
     -- da singolare NA a plurale NA
     -- NB: ignora le alternanze fonetiche di cui al par. 7.2.2
-    plur : Str -> Gender -> Str = \s,g ->
-      case g of {
-        M => case s of { -- cf. pag. 42
-          metr + ("u" | "e" | "ă") => metr + "i" ;
-          pom => pom + "i "  
-        } ;
-        -- cf. pag. 42-43, dando per scontato che i vari casi siano ordinati 
-        -- per frequenza
-        F => case s of { 
-          urs + ("oaie" | "oare") => s ;
-          limb + ("ie" | "ee" |"ă" | "e") => limb + "i" ;
-          st + "ea" => st + "ele" ;
-          cas + "ă" => cas + "e" ;
-          sh + "a" => sh + "ei" ;
-          zi => zi + "le "
-        } ;
-        N => case s of { -- cf. pag. 44
-          ferast + ("ău" | "âu") => ferast + "aie" ;
-          obic + "ei" => obic + "eie" ;
-          sicr + "iu" => sicr + "ie" ;
-          capat + "âi" => capat + "âie" ;
-          but + "oi" => but + "oaie" ;
-          c + "ui" => c + "uie" ;
-          bic + "i" => bic + "e" ;
-          codic + "e" => s ;
-          caiet => caiet + "e" 
-        } 
+    plur : Str -> Str = \s ->
+      case s of {
+        metr + ("u" | "e" | "ă") => metr + "i" ;
+        urs + ("oaie" | "oare") => s ;
+        limb + ("ie" | "ee" |"ă" | "e") => limb + "i" ;
+        st + "ea" => st + "ele" ;
+        cas + "ă" => cas + "e" ;
+        sh + "a" => sh + "ei" ;
+        zi => zi + "le " ;
+        ferast + ("ău" | "âu") => ferast + "aie" ;
+        obic + "ei" => obic + "eie" ;
+        sicr + "iu" => sicr + "ie" ;
+        capat + "âi" => capat + "âie" ;
+        but + "oi" => but + "oaie" ;
+        c + "ui" => c + "uie" ;
+        bic + "i" => bic + "e" ;
+        codic + "e" => s ;
+        pom => pom + "i" ; -- maschile
+        caiet => caiet + "e" -- neutro (purtroppo non usato)
       } ;
 
     -- aggiunge l'AD (Articolo Determinato) enclitico (cf. pag. 25) alla forma
@@ -104,12 +119,22 @@ resource MicroResRom = open Prelude in {
             vulp + "e" => case c of {
               NA => s + "a" ;
               GD => vulp + "ii"
-              }
+              } ;
+            x => case c of {
+              NA => x + "a" ;
+              GD => x + "i"
+            } 
           } 
         } ;
         P => case g of {
-          M => s + "i" ;
-          F | N => s + "le" 
+          M => case c of {
+            NA => s + "i" ;
+            GD => s + "ior"
+          } ;
+          F | N => case c of {
+            NA => s + "le" ;
+            GD => s + "lor" 
+          }
         }
       } ;
 }
