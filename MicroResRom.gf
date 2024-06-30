@@ -16,21 +16,21 @@ resource MicroResRom = open Prelude in {
           S => table {
             NA => table {
               I => nas ;
-              D => ad nas S g
+              D => ad nas S g NA
             } ;
             GD => table {
               I => gds ;
-              D => ad gds S g
+              D => ad gds S g GD
             }
           } ;
           P => table {
             NA => table {
               I => nap ;
-              D => ad nap P g
+              D => ad nap P g NA
             } ;
             GD => table {
               I => gdp ;
-              D => ad gdp P g
+              D => ad gdp P g GD
             }
           }
         } ;
@@ -75,18 +75,36 @@ resource MicroResRom = open Prelude in {
 
     -- aggiunge l'AD (Articolo Determinato) enclitico (cf. pag. 25) alla forma
     -- flessa di un sostantivo
-    ad : Str -> Number -> Gender -> Str = \s, n, g -> 
+    ad : Str -> Number -> Gender -> Case -> Str = \s, n, g, c -> 
       case n of {
         S => case g of {
           M | N => case s of {
-            frat + "e" => s + "le" ;
-            teatr + "u" => s + "l" ;
-            tat + "ă" => s + "l" ;
-            pom => s + "ul"
+            frat + "e" => case c of {
+              NA => s + "le" ;
+              GD => s + "lui"
+              } ;
+            teatr + "u" => case c of {
+              NA => s + "l" ;
+              GD => s + "lui "
+              } ;
+            tat + "ă" => case c of {
+              NA => s + "l" ;
+              GD => s + "lui"
+              } ;
+            pom => case c of {
+              NA => s + "ul" ;
+              GD => s + "ului"
+              }
             } ;
           F => case s of {
-            cas + "ă" => cas + "a" ;
-            vulp + "e" => s + "a"
+            cas + "ă" => case c of {
+              NA => cas + "a" ;
+              GD => cas + "ei" 
+              } ;
+            vulp + "e" => case c of {
+              NA => s + "a" ;
+              GD => vulp + "ii"
+              }
           } 
         } ;
         P => case g of {
